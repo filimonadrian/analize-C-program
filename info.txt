@@ -1,0 +1,57 @@
+
+
+
+Tema 1 lfa
+
+
+Functia:
+
+trebuie sa identific antetul functiei 
+    - nu trebuie sa inceapa cu #
+    - nu trebuie sa contina ; !!!!!!!
+        
+    - citesc pana la paranteza
+    - primele cuvinte sunt de fapt tipul
+    - ultimul cuvant trebuie sa fie numele functiei
+
+
+# IDENTIFICAREA NUMELUI FUNCTIEI
+
+    (\w+\(+.*\))
+
+- nu incepe cu # (nu e directiva), poate avea orice caracter apoi, sa contina oricate spatii, dar apoi sa aiba o paranteza rotunda
+    (^[^#]).*(\s*)(\w+\(+)
+
+    
+-  sa inceapa cu o litera sau o cifra, apoi sa contina orice caracter(din cele permise), sa contina setul de parantele 
+    - si in interiorsa nu contina ;
+(^[A-Za-z_ ][A-Za-z0-9_ ]*\(.*\{)
+
+
+-  sa inceapa cu o litera sau underscore, apoi sa contina orice caracter(din cele permise), sa contina setul de paranteze
+    -- si sa nu contina intre paranteze comparatii sau mai multe instructiuni
+(^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ ]*{)
+
+
+# IDENTIFICAREA VARIABILELOR
+
+    - pot sa dau skip pana la acolada
+    - de la acolada trebuie sa mai citesc si variabilele
+    - trebuie sa caut doar pentru char, int, float and double,
+    - TINE CONT SI DE VECTORI
+    
+
+
+# SKIP LA COMENTARII
+
+- trebuie sa fac skip la comentarii
+    - daca linia incepe cu // --> merg la urmatorul new line
+    - daca linia incepe cu /* --> merg pana la urmatorul */ exclusiv, nu trebuie sa il includ in sirul meu
+
+
+https://stackoverflow.com/questions/25395251/detecting-and-skipping-line-comments-with-flex
+IN FLEX . MATCHUIESTE ORICE IN AFARA DE NEW LINE
+SINGLE LINE COMMENT: "//".* 
+MULTI LINE COMMENT: [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
+
+
