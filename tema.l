@@ -33,18 +33,20 @@ special_chars [^;<>="']
 singleline_comment "//".* 
 multiline_comment [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 
-function_header (^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ ]*{)
+function_header ^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ "\n"]*{1}
 
 %X DONE
 
 %%
+
+<INITIAL>{function_header} {
     /* identificarea antetului functiei */
-<INITIAL> {function_header} {
-    printf("%s\n\n", yytext);
+    printf("%s\n", yytext);
     BEGIN(DONE);
 }
 
-<DONE>"}" {
+<DONE>"\n" {                 
+    printf("\n");
     BEGIN(INITIAL);
 }
 

@@ -11,7 +11,7 @@ letters [a-zA-Z0-9]
 
 <INITIAL>{letters}+ {
     //code in c
-    printf("%s\n", yyleng);
+    printf("%s\n", yytext);
     BEGIN(DONE);
 }
 
