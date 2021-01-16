@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-void calc_medie(int arg1, int arg2) {
-	for (i = 0; i /* comentariu */ < n; i++) {
+void /* comentariu */ calc_medie(int arg1, int arg2) {
+	for (i = 0; i < n; i++) {
 	printf("Am mere");
 	}
 }

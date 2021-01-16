@@ -21,6 +21,9 @@
 
         function func[100];
         int functions_NO = 0;
+
+        int line_num = 1;
+        int comment_caller;
         
 %}
 
@@ -35,23 +38,31 @@ multiline_comment [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 
 function_header ^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ "\n"]*{1}
 
-%X DONE
+%X comment start_comment
 
 %%
 
-<INITIAL>{function_header} {
-    /* identificarea antetului functiei */
-    printf("%s\n", yytext);
-    BEGIN(DONE);
+    /* ignorarea tuturor comentariilor din cod */
+    /* https://www.cs.virginia.edu/~cr4bd/flex-manual/Start-Conditions.html */
+
+"/*" {
+    comment_caller = INITIAL;
+    BEGIN(comment);
 }
 
-<DONE>"\n" {                 
-    printf("\n");
-    BEGIN(INITIAL);
+<start_comment>"/*" {
+    comment_caller = start_comment;
+    BEGIN(comment);
 }
 
-<INITIAL>.|\n {}
-<DONE>.|\n {}
+<comment>[^*\n]*        /* treci peste tot ce nu este * */
+<comment>"*"+[^*/\n]*   /* treci * care nu sunt urmate de / */
+<comment>\n             ++line_num; /* numara pe cate linii este comentariul */
+<comment>"*"+"/"        BEGIN(comment_caller);
+
+    /* afisarea antetelor functiilor */
+
+
 %%
 
 int main(int argc, char **argv) {
