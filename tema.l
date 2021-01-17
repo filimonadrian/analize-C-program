@@ -25,24 +25,14 @@
         
 %}
 
-letter [A-Za-z]
-number [0-9]
-inner_letter [A-Za-z0-9_-]
-first_letter [A-Za-z_ ]
-special_chars [^;<>="']
-
-singleline_comment "//".* 
-multiline_comment [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
-
-function_header ^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ "\n"]*{1}
-
 data_type void|int|float|double|char
-function_parameters \([.|\n]*\)
+function_parameters \(.*\)
 function_content \([.|\n]*\)
 
 function_name [A-Za-z_]+[A-Za-z0-9_-]*
         /* first ch */  /* inner chrs*/  /* if the var if vector */
 variable_name [A-Za-z_]+[A-Za-z0-9_-]*(\[\])*
+variable_name_rule _*[a-zA-Z]*\**(\[\])*
 end_declaring_vars ;
 end_function \}\n
 
@@ -52,22 +42,22 @@ end_function \}\n
 
     /* extract type of function */
 <INITIAL>{data_type} {
-    // printf("\tTip intors: %s\n", yytext); 
     strcpy(func.type, yytext);
+    strcat(func.type, "\0");
     BEGIN(func_name);
-    
 }
 
-<INITIAL>"/*[."\n"]**/" {} /* daca este comentariu il ignor */ 
 
 <func_name>{function_name} {
-    // printf("\nNume: %s\n", yytext); 
     strcpy(func.name, yytext);
-    BEGIN(func_content);
+    strcat(func.name, "\0");
+    BEGIN(func_params);
 }
 
 <func_params>{function_parameters} {
     strcpy(func.args, yytext);
+    strcat(func.args, "\0");
+
     BEGIN(func_content);
 }
 
@@ -83,42 +73,66 @@ end_function \}\n
     /* extract type of variable */
 <func_content>{data_type} { 
     strcpy(func.vars[vars_NO].type, yytext);
+    strcat(func.vars[vars_NO].type, "\0");
     BEGIN(local_vars);
 }
 
-    /* */
-<local_vars>{variable_name} {
-    strcpy(func.vars[vars_NO].name, yytext);
-    vars_NO++;
+    /* extract name of local variables*/
+<local_vars>{variable_name_rule} {
+
+    strcpy(func.vars[vars_NO++].name, yytext);
+
+    BEGIN(local_vars);
 }
 
-<local_vars>{end_declaring_vars} {
+ 
+<local_vars>; { 
+ 
     BEGIN(func_content);
 }
 
-
-<func_content>{end_function} {
-    printf("%s %s %s\n", func.type, func.name, func.args);
-    printf("\ttip intors: %s\n", func.type);
+    /* if we are at the end of the function */
+<func_content>\}\n {
+    printf("%s %s%s\n", func.type, func.name, func.args);
+    printf("\ttip returnat: %s\n", func.type);
     printf("\tnume: %s\n", func.name);
+
     printf("\tvariabile locale: %d(", vars_NO);
 
+    /* check if function has variables */
     for (int i = 0; i < vars_NO; i++) {
-        if (i == vars_NO - 2) {
+
+        /* if it's the first variable, print it's type */
+        if (i == 0) {
+            printf("%s ", func.vars[i].type);
+        }
+
+        /* if the last printed type is not the same as the current type
+         * print the type
+        */
+        if (i > 0 && strcmp(func.vars[i].type, func.vars[i - 1].type) != 0) {
+            printf("%s ", func.vars[i].type);
+        }
+
+        if (i == vars_NO - 1) {
             printf("%s)\n", func.vars[i].name);
 
         } else {
             printf("%s, ", func.vars[i].name);
         }
     }
+
+    memset(&func, 0, sizeof(function));
+    vars_NO = 0;
     BEGIN(INITIAL);
 }
 
-<func_end>"\}\n" {
-    BEGIN(INITIAL);
-}
-
-.|\n { }
+<INITIAL>.|\n {}
+<func_name>.|\n {}
+<func_params>.|\n {}
+<func_content>.|\n {}
+<func_end>.|\n {}
+<local_vars>.|\n {}
 
 %%
 

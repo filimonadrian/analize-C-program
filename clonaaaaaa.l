@@ -133,6 +133,18 @@ int main(int argc, char **argv) {
 /* AFISEAZA TIPUL FUNCTIEI -- DEPINDE DE CODING STYLE */
 
 
+letter [A-Za-z]
+number [0-9]
+inner_letter [A-Za-z0-9_-]
+first_letter [A-Za-z_ ]
+special_chars [^;<>="']
+singleline_comment "//".* 
+multiline_comment [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
+function_header ^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ "\n"]*{
+
+
+
+
 
     printf("%s %s %s\n", func.type, func.name, func.args);
     printf("\ttip intors: %s\n", func.type);
@@ -155,3 +167,11 @@ int main(int argc, char **argv) {
 <func_content>.|\n {}
 <func_end>.|\n {}
 <vars>.|\n {}
+
+
+
+
+// data_type void|int|float|double|char
+// function_name [A-Za-z_]+[A-Za-z0-9_-]*
+        /* first ch */  /* inner chrs*/  /* if the var if vector */
+// variable_name [A-Za-z_]+[A-Za-z0-9_-]*(\[\])*

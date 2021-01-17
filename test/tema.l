@@ -42,17 +42,15 @@ variableNameRule _*[a-zA-Z]*\**(\[\])*
  
     BEGIN(FUNCTION_CONTENT);
 }
-
-        /* skip comments */
+ 
 <FUNCTION_CONTENT>\/\*[^*]*\*\/ { 
     BEGIN(FUNCTION_CONTENT);
 }
-    /* skip functions calls(for exec. printf) */ 
+ 
 <FUNCTION_CONTENT>{functionNameRule}\([^*]*\) { 
     BEGIN(FUNCTION_CONTENT);
 }
-
-    /* extract type of variable */
+ 
 <FUNCTION_CONTENT>{cDataTypeRule} { 
     isCurrentVariablesType = 1;
     strcpy(variables[currentVariableIdx++], yytext);
