@@ -12,18 +12,16 @@
         } variables;
 
         typedef struct function {
-            char function_name[100];
-            char type[10]; 
-            int nr_local_vars;
+            char signature[100];
+            char name[30];
+            char type[10];
+            char args[100];
             variables vars[100];
 
         } function;
 
-        function func[100];
-        int functions_NO = 0;
-
-        int line_num = 1;
-        int comment_caller;
+        function func;
+        int vars_NO = 0;
         
 %}
 
@@ -38,30 +36,89 @@ multiline_comment [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]
 
 function_header ^[A-Za-z_ ][A-Za-z0-9_ "\n"]*\([^;><="]*\)[ "\n"]*{1}
 
-%X comment start_comment
+data_type void|int|float|double|char
+function_parameters \([.|\n]*\)
+function_content \([.|\n]*\)
+
+function_name [A-Za-z_]+[A-Za-z0-9_-]*
+        /* first ch */  /* inner chrs*/  /* if the var if vector */
+variable_name [A-Za-z_]+[A-Za-z0-9_-]*(\[\])*
+end_declaring_vars ;
+end_function \}\n
+
+%X func_name func_params func_content func_end local_vars 
 
 %%
 
-    /* ignorarea tuturor comentariilor din cod */
-    /* https://www.cs.virginia.edu/~cr4bd/flex-manual/Start-Conditions.html */
-
-"/*" {
-    comment_caller = INITIAL;
-    BEGIN(comment);
+    /* extract type of function */
+<INITIAL>{data_type} {
+    // printf("\tTip intors: %s\n", yytext); 
+    strcpy(func.type, yytext);
+    BEGIN(func_name);
+    
 }
 
-<start_comment>"/*" {
-    comment_caller = start_comment;
-    BEGIN(comment);
+<INITIAL>"/*[."\n"]**/" {} /* daca este comentariu il ignor */ 
+
+<func_name>{function_name} {
+    // printf("\nNume: %s\n", yytext); 
+    strcpy(func.name, yytext);
+    BEGIN(func_content);
 }
 
-<comment>[^*\n]*        /* treci peste tot ce nu este * */
-<comment>"*"+[^*/\n]*   /* treci * care nu sunt urmate de / */
-<comment>\n             ++line_num; /* numara pe cate linii este comentariul */
-<comment>"*"+"/"        BEGIN(comment_caller);
+<func_params>{function_parameters} {
+    strcpy(func.args, yytext);
+    BEGIN(func_content);
+}
 
-    /* afisarea antetelor functiilor */
+    /* skip comments */
+<func_content>\/\*[^*]*\*\/ { 
+    BEGIN(func_content);
+}
+    /* skip functions calls(for exec. printf) */ 
+<func_content>{function_name}\([^*]*\) { 
+    BEGIN(func_content);
+}
+ 
+    /* extract type of variable */
+<func_content>{data_type} { 
+    strcpy(func.vars[vars_NO].type, yytext);
+    BEGIN(local_vars);
+}
 
+    /* */
+<local_vars>{variable_name} {
+    strcpy(func.vars[vars_NO].name, yytext);
+    vars_NO++;
+}
+
+<local_vars>{end_declaring_vars} {
+    BEGIN(func_content);
+}
+
+
+<func_content>{end_function} {
+    printf("%s %s %s\n", func.type, func.name, func.args);
+    printf("\ttip intors: %s\n", func.type);
+    printf("\tnume: %s\n", func.name);
+    printf("\tvariabile locale: %d(", vars_NO);
+
+    for (int i = 0; i < vars_NO; i++) {
+        if (i == vars_NO - 2) {
+            printf("%s)\n", func.vars[i].name);
+
+        } else {
+            printf("%s, ", func.vars[i].name);
+        }
+    }
+    BEGIN(INITIAL);
+}
+
+<func_end>"\}\n" {
+    BEGIN(INITIAL);
+}
+
+.|\n { }
 
 %%
 
