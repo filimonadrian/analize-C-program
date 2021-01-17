@@ -1,52 +1,38 @@
 #include <stdio.h>
 #include <string.h>
 
-void calc_medie(int arg1, int arg2) {
+void simple_func(int arg1, int arg2) {
     int i, n = 1;
 	for (i = 0; i < n; i++) {
 	printf("Am mere");
 	}
+
 }
 
-int 
-calc_medie2
-        (int 
-        arg1, int arg2) {
+int func_on_multiple_lines(int arg1, int arg2) {
+    int multiple1 = 0, /* comentariu */multiple2, multiple3;
+    float multiple4, multiple5, multiple6;
 
-    int a = 0, /* comentariu */b, c;
-    float d, e, f;
-
-    return a; 
+    return multiple1; 
 }
 
-int test_vars_case(int arg1, int arg2) {
+double test_vars_case(int arg1, int arg2) {
     
-    unsigned long long int var;
+    char var;
     int a, b, c; 
     float d, e, f;
     double g;
 
-    return a; 
+    return 0.0; 
 }
 
-unsigned 
-long 
-long
-int multi_line_funct
-(long long int var1) {
-
-    unsigned long long int a;
-    float b;
-
-    return a;
-}
 
 int main() {
 
-    /* $calc_medie2(1, 2); */
+    /* skip this comment */
 
     double n1 = 1, n2 = 2, n3 = 3;
-    printf("Enter three numbers: ");
+    printf("Skip this function ");
     /* scanf("%lf %lf %lf", &n1, &n2, &n3); */
 
     /* if n1 is greater than both n2 and n3, n1 is the largest */

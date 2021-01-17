@@ -1,22 +1,32 @@
-<?
-/* This is a comment */
+/* FILIMON ADRIAN, 334CC */
+#include<stdio.h>
 
-cout << "Hello World"; // prints Hello World
+int 
+func_multiple_lines (float arg1, float arg2)
+{
+    char multiple1, /* comment */ multiple2, multiple3;
+    float multiple4, multiple5;
 
-/*
- * C++ comments can  also
- */
+    return multiple1;
+}
 
-cout << "Hello World"; 
+int
+main() {
 
-/* Comment out printing of Hello World:
+    /* skip this comment */
+    // single line comment
+    double n1 = 1, n2 = 2, n3 = 3;
+    printf("Skip this function ");
 
-cout << "Hello World"; // prints Hello World
+    /* if n1 is greater than both n2 and n3, n1 is the largest */
+    if (n1 >= n2 && n1 >= n3)
+        printf("%.2lf is the largest number.\n", n1);
 
-*/
+    else if (n2 >= n1 && n2 >= n3)
+        printf("%.2lf is the largest number.\n", n2);
 
-echo "//This line was not a Comment, but ... ";
-echo "http://stackoverflow.com";
-echo 'http://stackoverflow.com/you can not match this line';
-array = ['//', 'no, you can not match this line!!']
-/* This is * //a comment */
+    else
+        printf("%.2lf is the largest number.\n", n3);
+
+    return 0;
+}

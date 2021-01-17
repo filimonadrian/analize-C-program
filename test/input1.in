@@ -1,9 +1,0 @@
-#include <stdio.h>
-void func() {
-    int a, b;
-}
-int main() {
-   float a, b;
-   printf("Hello, World!");
-   return 0;
-}

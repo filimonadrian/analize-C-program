@@ -1,5 +1,4 @@
 /* FILIMON ADRIAN, 334CC */
-/* http://crasseux.com/books/ctutorial/Function-names.html */
 
 %{
         #include <stdio.h>
@@ -12,7 +11,6 @@
         } variables;
 
         typedef struct function {
-            char signature[100];
             char name[30];
             char type[10];
             char args[100];
@@ -21,22 +19,20 @@
         } function;
 
         function func;
-        int vars_NO = 0;
-        
+        int vars_NO = 0;        
 %}
 
 data_type void|int|float|double|char
-function_parameters \(.*\)
-function_content \([.|\n]*\)
+function_parameters \(.*"\n"*\)
 
 function_name [A-Za-z_]+[A-Za-z0-9_-]*
         /* first ch */  /* inner chrs*/  /* if the var if vector */
-variable_name [A-Za-z_]+[A-Za-z0-9_-]*(\[\])*
-variable_name_rule _*[a-zA-Z]*\**(\[\])*
+variable_name [A-Za-z_]+[A-Za-z0-9_-]*(\[[0-9]*\])*
 end_declaring_vars ;
 end_function \}\n
+comment \/\*[^*]*\*\/
 
-%X func_name func_params func_content func_end local_vars 
+%X func_name func_params func_content local_vars 
 
 %%
 
@@ -46,7 +42,6 @@ end_function \}\n
     strcat(func.type, "\0");
     BEGIN(func_name);
 }
-
 
 <func_name>{function_name} {
     strcpy(func.name, yytext);
@@ -61,15 +56,15 @@ end_function \}\n
     BEGIN(func_content);
 }
 
-    /* skip comments */
-<func_content>\/\*[^*]*\*\/ { 
+    /* skip comments in function */
+<func_content>{comment} { 
     BEGIN(func_content);
 }
-    /* skip functions calls(for exec. printf) */ 
-<func_content>{function_name}\([^*]*\) { 
+
+<func_content>\/\/.* { 
     BEGIN(func_content);
 }
- 
+
     /* extract type of variable */
 <func_content>{data_type} { 
     strcpy(func.vars[vars_NO].type, yytext);
@@ -77,14 +72,20 @@ end_function \}\n
     BEGIN(local_vars);
 }
 
+    /* skip functions calls(example: printf or while, for..) */ 
+<func_content>{function_name}\([^*]*\) { 
+    BEGIN(func_content);
+}
+
     /* extract name of local variables*/
-<local_vars>{variable_name_rule} {
-
+<local_vars>{variable_name} {
     strcpy(func.vars[vars_NO++].name, yytext);
-
     BEGIN(local_vars);
 }
 
+<local_vars>{comment} {
+    BEGIN(local_vars);
+}
  
 <local_vars>; { 
  
@@ -92,9 +93,9 @@ end_function \}\n
 }
 
     /* if we are at the end of the function */
-<func_content>\}\n {
+<func_content>{end_function} {
     printf("%s %s%s\n", func.type, func.name, func.args);
-    printf("\ttip returnat: %s\n", func.type);
+    printf("\ttip intors: %s\n", func.type);
     printf("\tnume: %s\n", func.name);
 
     printf("\tvariabile locale: %d(", vars_NO);
@@ -104,19 +105,22 @@ end_function \}\n
 
         /* if it's the first variable, print it's type */
         if (i == 0) {
-            printf("%s ", func.vars[i].type);
+            // printf("%s ", func.vars[i].type);
         }
 
-        /* if the last printed type is not the same as the current type
-         * print the type
+        /* just first var has it's type in the struct
+         * if the type is null ==> this var has the same type like 
         */
-        if (i > 0 && strcmp(func.vars[i].type, func.vars[i - 1].type) != 0) {
+        if (strcmp(func.vars[i].type, "") != 0) {
             printf("%s ", func.vars[i].type);
-        }
 
+        }
+        
+        /* if is the last variable, close the parantheses */
         if (i == vars_NO - 1) {
             printf("%s)\n", func.vars[i].name);
-
+        
+        /* else print regular */
         } else {
             printf("%s, ", func.vars[i].name);
         }
@@ -131,7 +135,6 @@ end_function \}\n
 <func_name>.|\n {}
 <func_params>.|\n {}
 <func_content>.|\n {}
-<func_end>.|\n {}
 <local_vars>.|\n {}
 
 %%
